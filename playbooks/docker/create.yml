@@ -1,0 +1,22 @@
+---
+- name: create
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  no_log: "{{ not lookup('env', 'MOLECULE_DEBUG') | bool }}"
+  vars:
+    molecule_file: "{{ lookup('env', 'MOLECULE_FILE') }}"
+    molecule_yml: "{{ lookup('file', molecule_file) | molecule_from_yaml }}"
+  tasks:
+    - name: create molecule instance(s)
+      docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        recreate: "{{ item.recreate | default('no') | bool }}"
+        command: "{{ item.command | default('sleep infinity') }}"
+        privileged: "{{ item.privileged | default(omit) }}"
+        volumes: "{{ item.volumes | default(omit) }}"
+        capabilities: "{{ item.capabilities | default(omit) }}"
+        ports: "{{ item.exposed_ports | default(omit) }}"
+      with_items: "{{ molecule_yml.platforms }}"
