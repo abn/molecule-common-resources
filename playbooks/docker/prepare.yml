@@ -1,0 +1,7 @@
+---
+- name: prepare
+  hosts: all
+  gather_facts: False
+  tasks: []
+  roles:
+    - abn.managed-node-bootstrap
